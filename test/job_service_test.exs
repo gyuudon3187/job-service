@@ -47,5 +47,18 @@ defmodule JobService.RouterTest do
       assert conn.status == 400
       assert Jason.decode!(conn.resp_body) == %{"error" => %{"jobId" => "NEGATIVE_ID"}}
     end
+
+    test "with invalid importance" do
+      # Given
+      invalid_skillset = put_in(@valid_skillset, ["importance"], 11)
+      conn = conn(:post, "/skillset", invalid_skillset)
+
+      # When
+      conn = Router.call(conn, @opts)
+
+      # Then
+      assert conn.status == 400
+      assert Jason.decode!(conn.resp_body) == %{"error" => %{"importance" => "EXCEEDS_BOUNDS"}}
+    end
   end
 end
