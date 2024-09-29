@@ -8,6 +8,7 @@ defmodule JobService.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      {Bandit, plug: JobService.Router}
       # Starts a worker by calling: JobService.Worker.start_link(arg)
       # {JobService.Worker, arg}
     ]
