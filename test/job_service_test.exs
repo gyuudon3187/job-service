@@ -34,5 +34,18 @@ defmodule JobService.RouterTest do
       assert conn.status == 200
       assert Jason.decode!(conn.resp_body) == %{"message" => "SUCCESS"}
     end
+
+    test "with invalid jobId" do
+      # Given
+      invalid_skillset = put_in(@valid_skillset, ["jobId"], -1)
+      conn = conn(:post, "/skillset", invalid_skillset)
+
+      # When
+      conn = Router.call(conn, @opts)
+
+      # Then
+      assert conn.status == 400
+      assert Jason.decode!(conn.resp_body) == %{"error" => %{"jobId" => "NEGATIVE_ID"}}
+    end
   end
 end
