@@ -1,7 +1,7 @@
-defmodule JobServiceTest do
+defmodule JobService.RouterTest do
   use ExUnit.Case
   use Plug.Test
-  doctest JobService
+  doctest JobService.Router
 
   alias JobService.Router
 
@@ -32,7 +32,7 @@ defmodule JobServiceTest do
 
       # Then
       assert conn.status == 200
-      assert conn.resp_body == "Data saved successfully"
+      assert Jason.decode!(conn.resp_body) == %{"message" => "SUCCESS"}
     end
   end
 end
