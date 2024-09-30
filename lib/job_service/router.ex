@@ -3,6 +3,12 @@ defmodule JobService.Router do
 
   alias JobService.JobController
 
+  plug(Plug.Parsers,
+    parsers: [:json],
+    pass: ["*/*"],
+    json_decoder: Jason
+  )
+
   plug(JobService.Plugs.Authorization)
   plug(:match)
   plug(:dispatch)
