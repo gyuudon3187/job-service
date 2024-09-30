@@ -9,8 +9,8 @@ defmodule JobService.JobController do
         with :ok <- validate_job_id(job_id) do
           send_resp(conn, 200, Jason.encode!(%{"message" => "SUCCESS"}))
         else
-          {:error, reason} ->
-            send_resp(conn, 422, Jason.encode!(%{"error" => %{"jobId" => reason}}))
+          {:error, error_name, reason} ->
+            send_resp(conn, 422, Jason.encode!(%{"error" => %{error_name => reason}}))
         end
 
       _ ->
@@ -23,7 +23,7 @@ defmodule JobService.JobController do
     if job_id > 0 do
       :ok
     else
-      {:error, "NEGATIVE_ID"}
+      {:error, "jobId", "NEGATIVE_ID"}
     end
   end
 end
