@@ -3,6 +3,7 @@ defmodule JobService.RouterTest do
   use Plug.Test
   doctest JobService.Router
 
+  alias Plug.Conn
   alias JobService.Router
 
   @opts Router.init([])
@@ -22,6 +23,20 @@ defmodule JobService.RouterTest do
     ]
   }
 
+  @spec get_invalid_conn(String.t(), any) :: Conn
+  defp get_invalid_conn(field, value) do
+    invalid_skillset = put_in(@valid_skillset, [field], value)
+    conn(:post, "/skillset", invalid_skillset)
+  end
+
+  @spec get_invalid_conn(integer, String.t(), any) :: Conn
+  defp get_invalid_conn(index, nested_field, value) do
+    invalid_skillset =
+      put_in(@valid_skillset, ["skillset", Access.at(index), nested_field], value)
+
+    conn(:post, "/skillset", invalid_skillset)
+  end
+
   describe "POST /skillset" do
     test "with valid data" do
       # Given
@@ -37,8 +52,7 @@ defmodule JobService.RouterTest do
 
     test "with invalid jobId" do
       # Given
-      invalid_skillset = put_in(@valid_skillset, ["skillset", Access.at(0), "jobId"], -1)
-      conn = conn(:post, "/skillset", invalid_skillset)
+      conn = get_invalid_conn("jobId", -1)
 
       # When
       conn = Router.call(conn, @opts)
@@ -50,8 +64,7 @@ defmodule JobService.RouterTest do
 
     test "with invalid importance" do
       # Given
-      invalid_skillset = put_in(@valid_skillset, ["skillset", Access.at(0), "importance"], 11)
-      conn = conn(:post, "/skillset", invalid_skillset)
+      conn = get_invalid_conn(0, "importance", 11)
 
       # When
       conn = Router.call(conn, @opts)
