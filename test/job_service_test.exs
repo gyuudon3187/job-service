@@ -90,14 +90,9 @@ defmodule JobService.RouterTest do
       assert Jason.decode!(conn.resp_body) == %{"message" => "SUCCESS"}
     end
 
-    test "with no email" do
-      #
-    end
-
     test "with invalid jobId" do
       # Given
       conn = get_invalid_conn_with_jwt("jobId", -1)
-      # conn = get_invalid_conn("jobId", -1)
 
       # When
       conn = Router.call(conn, @opts)
