@@ -8,6 +8,9 @@ defmodule JobService.JobController do
       %{"jobId" => job_id, "skillset" => _skillset} ->
         with :ok <- validate_job_id(job_id) do
           send_resp(conn, 200, Jason.encode!(%{"message" => "SUCCESS"}))
+        else
+          {:error, reason} ->
+            send_resp(conn, 422, Jason.encode!(%{"error" => %{"jobId" => reason}}))
         end
 
       _ ->
