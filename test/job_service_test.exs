@@ -37,7 +37,7 @@ defmodule JobService.RouterTest do
 
     test "with invalid jobId" do
       # Given
-      invalid_skillset = put_in(@valid_skillset, ["jobId"], -1)
+      invalid_skillset = put_in(@valid_skillset, ["skillset", Access.at(0), "jobId"], -1)
       conn = conn(:post, "/skillset", invalid_skillset)
 
       # When
@@ -50,7 +50,7 @@ defmodule JobService.RouterTest do
 
     test "with invalid importance" do
       # Given
-      invalid_skillset = put_in(@valid_skillset, ["importance"], 11)
+      invalid_skillset = put_in(@valid_skillset, ["skillset", Access.at(0), "importance"], 11)
       conn = conn(:post, "/skillset", invalid_skillset)
 
       # When
