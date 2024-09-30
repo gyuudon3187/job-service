@@ -3,6 +3,7 @@ defmodule JobService.Router do
 
   alias JobService.JobController
 
+  plug(JobService.Plugs.Authorization)
   plug(:match)
   plug(:dispatch)
 
