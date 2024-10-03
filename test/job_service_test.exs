@@ -7,18 +7,6 @@ defmodule JobService.RouterTest do
   alias JobService.Router
   alias JobService.JobSkillset
 
-  # test "interacts with the postgres container" do
-  #   IO.puts("testing")
-  #
-  #   result =
-  #     JobService.Repo.insert!(%JobService.JobSkill{
-  #       job_id: 1,
-  #       skillset: [%{topic: "test", importance: 8, type: "technical", content: "testtest"}]
-  #     })
-  #
-  #   assert result.field == "value"
-  # end
-
   @opts Router.init([])
   @jwt JobService.JWT.generate_and_sign!()
   @valid_skillset %{
@@ -95,6 +83,23 @@ defmodule JobService.RouterTest do
 
       # Then
       expected_errors = %{"job_id" => "NEGATIVE_ID", "skillset" => []}
+      assert conn.status == 422
+      assert Jason.decode!(conn.resp_body) == %{"errors" => expected_errors}
+    end
+
+    test "with invalid (non-string) topic" do
+      # Given
+      conn = get_invalid_conn_with_jwt(0, "topic", 1)
+
+      # When
+      conn = Router.call(conn, @opts)
+
+      # Then
+      expected_errors = %{
+        "job_id" => nil,
+        "skillset" => [%{"id" => 1, "topic" => "NOT_STRING"}]
+      }
+
       assert conn.status == 422
       assert Jason.decode!(conn.resp_body) == %{"errors" => expected_errors}
     end
