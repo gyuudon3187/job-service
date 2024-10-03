@@ -104,9 +104,9 @@ defmodule JobService.RouterTest do
       assert Jason.decode!(conn.resp_body) == %{"errors" => expected_errors}
     end
 
-    test "with invalid importance" do
+    defp test_invalid_importance(value, expected_error) do
       # Given
-      conn = get_invalid_conn_with_jwt(0, "importance", 11)
+      conn = get_invalid_conn_with_jwt(0, "importance", value)
 
       # When
       conn = Router.call(conn, @opts)
@@ -114,11 +114,23 @@ defmodule JobService.RouterTest do
       # Then
       expected_errors = %{
         "job_id" => nil,
-        "skillset" => [%{"id" => 1, "importance" => "EXCEEDS_BOUNDS"}]
+        "skillset" => [%{"id" => 1, "importance" => expected_error}]
       }
 
       assert conn.status == 422
       assert Jason.decode!(conn.resp_body) == %{"errors" => expected_errors}
+    end
+
+    test "with invalid (non-number) importance" do
+      test_invalid_importance("10", "NOT_NUMBER")
+    end
+
+    test "with invalid (exceeding upper bound) importance" do
+      test_invalid_importance(11, "EXCEEDS_BOUNDS")
+    end
+
+    test "with invalid (negative) importance" do
+      test_invalid_importance(-1, "EXCEEDS_BOUNDS")
     end
   end
 end
