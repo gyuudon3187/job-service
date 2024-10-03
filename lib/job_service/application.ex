@@ -13,6 +13,13 @@ defmodule JobService.Application do
       # {JobService.Worker, arg}
     ]
 
+    children =
+      if Mix.env() == :test do
+        children
+      else
+        [JobService.Repo | children]
+      end
+
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: JobService.Supervisor]
