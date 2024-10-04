@@ -112,8 +112,12 @@ defmodule JobService.JobSkillset do
   end
 
   @spec validate_topic(String.t(), integer()) :: :ok | JobSkillsetErrors.error_skill()
-  defp validate_topic(topic, _id) when is_binary(topic) do
-    :ok
+  defp validate_topic(topic, id) when is_binary(topic) do
+    if String.length(topic) < 2 do
+      {:error, :topic, "TOO_SHORT", id}
+    else
+      :ok
+    end
   end
 
   defp validate_topic(_topic, id) do
