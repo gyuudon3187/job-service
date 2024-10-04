@@ -40,10 +40,9 @@ defmodule JobService.RouterTest do
   end
 
   describe "POST /skillset with invalid jobId" do
-    @describetag nested_field: false
     @describetag invalid_key: "jobId"
 
-    setup [:get_invalid_skillset_test, :do_invalid_test]
+    setup [:get_invalid_test, :do_invalid_test]
 
     @tag invalid_value: -1
     @tag expected_error: "NEGATIVE_ID"
@@ -53,10 +52,10 @@ defmodule JobService.RouterTest do
   end
 
   describe "POST /skillset with invalid topic" do
-    @describetag :nested_field
     @describetag invalid_key: "topic"
+    @describetag skillset_index: 0
 
-    setup [:get_invalid_skillset_test, :do_invalid_test]
+    setup [:get_invalid_test, :do_invalid_test]
 
     @tag invalid_value: 1
     @tag expected_error: "NOT_STRING"
@@ -66,10 +65,10 @@ defmodule JobService.RouterTest do
   end
 
   describe "POST /skillset with invalid importance" do
-    @describetag :nested_field
     @describetag invalid_key: "importance"
+    @describetag skillset_index: 0
 
-    setup [:get_invalid_skillset_test, :do_invalid_test]
+    setup [:get_invalid_test, :do_invalid_test]
 
     @tag invalid_value: "10"
     @tag expected_error: "NOT_NUMBER"
@@ -95,32 +94,46 @@ defmodule JobService.RouterTest do
     assert Jason.decode!(conn.resp_body) == %{"errors" => expected_errors}
   end
 
-  defp get_invalid_skillset_test(%{invalid_key: key, nested_field: is_nested_field}) do
+  defp get_invalid_test(%{
+         invalid_key: key,
+         skillset_index: index
+       }) do
     invalid_skillset_test = fn value, expected_error ->
       # Given
-      conn =
-        if is_nested_field do
-          get_invalid_conn_with_jwt(0, key, value)
-        else
-          get_invalid_conn_with_jwt(key, value)
-        end
+      conn = get_invalid_conn_with_jwt(index, key, value)
 
       # When
       conn = Router.call(conn, @opts)
 
       # Then
-      expected_errors =
-        if is_nested_field do
-          %{
-            "job_id" => nil,
-            "skillset" => [%{"id" => 1, key => expected_error}]
-          }
-        else
-          %{
-            "job_id" => expected_error,
-            "skillset" => []
-          }
-        end
+      expected_errors = %{
+        "job_id" => nil,
+        "skillset" => [
+          %{"id" => index + 1, key => expected_error}
+        ]
+      }
+
+      %{expected_errors: expected_errors, conn: conn}
+    end
+
+    %{invalid_test: invalid_skillset_test}
+  end
+
+  defp get_invalid_test(%{
+         invalid_key: key
+       }) do
+    invalid_skillset_test = fn value, expected_error ->
+      # Given
+      conn = get_invalid_conn_with_jwt(key, value)
+
+      # When
+      conn = Router.call(conn, @opts)
+
+      # Then
+      expected_errors = %{
+        "job_id" => expected_error,
+        "skillset" => []
+      }
 
       %{expected_errors: expected_errors, conn: conn}
     end
