@@ -49,6 +49,12 @@ defmodule JobService.RouterTest do
     test "(non-string)", context do
       assert_status_422_and_expected_errors(context.conn, context.expected_errors)
     end
+
+    @tag invalid_value: "A"
+    @tag expected_error: "NOT_NUMBER"
+    test "(non-numerical)", context do
+      assert_status_422_and_expected_errors(context.conn, context.expected_errors)
+    end
   end
 
   describe "POST /skillset with invalid topic" do
