@@ -12,7 +12,7 @@ defmodule JobService.JobController do
         |> send_resp_depending_on_errors(conn)
 
       _ ->
-        send_resp(conn, 400, "PAYLOAD_MALFORMED")
+        send_resp(conn, 400, Jason.encode!(%{"errors" => "PAYLOAD_MALFORMED"}))
     end
   end
 
