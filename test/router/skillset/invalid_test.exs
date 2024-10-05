@@ -13,12 +13,12 @@ defmodule JobService.Router.Skillset.InvalidTest do
 
     @tag lacking_field: "jobId"
     test "(lacks jobId field)", context do
-      assert_status_and_expected_errors(context)
+      assert_expected_errors_and_status(context)
     end
 
     @tag lacking_field: "skillset"
     test "(lacks skillset field)", context do
-      assert_status_and_expected_errors(context)
+      assert_expected_errors_and_status(context)
     end
   end
 
@@ -31,13 +31,13 @@ defmodule JobService.Router.Skillset.InvalidTest do
     @tag invalid_value: -1
     @tag expected_error: "NEGATIVE_ID"
     test "(negative)", context do
-      assert_status_and_expected_errors(context)
+      assert_expected_errors_and_status(context)
     end
 
     @tag invalid_value: "A"
     @tag expected_error: "NOT_NUMBER"
     test "(non-numerical)", context do
-      assert_status_and_expected_errors(context)
+      assert_expected_errors_and_status(context)
     end
   end
 
@@ -51,13 +51,13 @@ defmodule JobService.Router.Skillset.InvalidTest do
     @tag invalid_value: 1
     @tag expected_error: "NOT_STRING"
     test "(non-string)", context do
-      assert_status_and_expected_errors(context)
+      assert_expected_errors_and_status(context)
     end
 
     @tag invalid_value: "A"
     @tag expected_error: "TOO_SHORT"
     test "(too short)", context do
-      assert_status_and_expected_errors(context)
+      assert_expected_errors_and_status(context)
     end
   end
 
@@ -71,19 +71,19 @@ defmodule JobService.Router.Skillset.InvalidTest do
     @tag invalid_value: "10"
     @tag expected_error: "NOT_NUMBER"
     test "(non-number)", context do
-      assert_status_and_expected_errors(context)
+      assert_expected_errors_and_status(context)
     end
 
     @tag invalid_value: 11
     @tag expected_error: "EXCEEDS_BOUNDS"
     test "(exceeding upper bound)", context do
-      assert_status_and_expected_errors(context)
+      assert_expected_errors_and_status(context)
     end
 
     @tag invalid_value: -1
     @tag expected_error: "EXCEEDS_BOUNDS"
     test "(negative)", context do
-      assert_status_and_expected_errors(context)
+      assert_expected_errors_and_status(context)
     end
   end
 

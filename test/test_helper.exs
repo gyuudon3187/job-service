@@ -10,7 +10,7 @@ defmodule JobService.Router.TestUtils do
   @opts Router.init([])
   @jwt JobService.JWT.generate_and_sign!()
 
-  def assert_status_and_expected_errors(%{
+  def assert_expected_errors_and_status(%{
         conn: conn,
         expected_errors: errors,
         expected_status: status
@@ -19,7 +19,7 @@ defmodule JobService.Router.TestUtils do
     assert conn.status == status
   end
 
-  def assert_status_and_expected_errors(%{
+  def assert_message_and_status(%{
         conn: conn,
         expected_message: message,
         expected_status: status

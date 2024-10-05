@@ -11,7 +11,7 @@ defmodule JobService.Router.Skillset.ValidTest do
     setup [:prepare_successful_test, :do_test]
 
     test "(2 skills, all fields initialized except content)", context do
-      assert_status_and_expected_errors(context)
+      assert_message_and_status(context)
     end
   end
 
