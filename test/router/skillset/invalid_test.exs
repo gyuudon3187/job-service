@@ -1,48 +1,15 @@
-defmodule JobService.RouterTest do
+defmodule JobService.Router.Skillset.InvalidTest do
   use ExUnit.Case
-  use Plug.Test
+  import JobService.Router.{TestUtils, Skillset.TestUtils}
   doctest JobService.Router
 
-  alias Plug.Conn
-  alias JobService.Router
-
-  @opts Router.init([])
-  @jwt JobService.JWT.generate_and_sign!()
-  @valid_skillset %{
-    "jobId" => 1,
-    "skillset" => [
-      %{
-        "topic" => "Experience in serverless architecture and AWS",
-        "importance" => 9,
-        "type" => "technical",
-        "content" => "Some text"
-      },
-      %{
-        "topic" => "Working in an agile environment with Scrum or Kanban",
-        "importance" => 7,
-        "type" => "project_management",
-        "content" => "Some text"
-      }
-    ]
-  }
-
-  test "POST /skillset with valid data" do
-    # Given
-    conn = get_conn_with_jwt(@valid_skillset)
-
-    # When
-    conn = Router.call(conn, @opts)
-
-    # Then
-    assert conn.status == 200
-    assert Jason.decode!(conn.resp_body) == %{"message" => "SUCCESS"}
-  end
+  @valid_skillset get_valid_skillset()
 
   describe "POST /skillset with malformed payload" do
     @describetag expected_error: "PAYLOAD_MALFORMED"
     @describetag expected_status: 400
 
-    setup [:prepare_malformed_test, :do_invalid_test]
+    setup [:prepare_malformed_test, :do_test]
 
     @tag lacking_field: "jobId"
     test "(lacks jobId field)", context do
@@ -59,7 +26,7 @@ defmodule JobService.RouterTest do
     @describetag invalid_key: "jobId"
     @describetag expected_status: 422
 
-    setup [:prepare_invalid_job_id_test, :do_invalid_test]
+    setup [:prepare_invalid_job_id_test, :do_test]
 
     @tag invalid_value: -1
     @tag expected_error: "NEGATIVE_ID"
@@ -79,7 +46,7 @@ defmodule JobService.RouterTest do
     @describetag expected_status: 422
     @describetag skillset_index: 0
 
-    setup [:prepare_invalid_skillset_test, :do_invalid_test]
+    setup [:prepare_invalid_skillset_test, :do_test]
 
     @tag invalid_value: 1
     @tag expected_error: "NOT_STRING"
@@ -99,7 +66,7 @@ defmodule JobService.RouterTest do
     @describetag expected_status: 422
     @describetag skillset_index: 0
 
-    setup [:prepare_invalid_skillset_test, :do_invalid_test]
+    setup [:prepare_invalid_skillset_test, :do_test]
 
     @tag invalid_value: "10"
     @tag expected_error: "NOT_NUMBER"
@@ -118,22 +85,6 @@ defmodule JobService.RouterTest do
     test "(negative)", context do
       assert_status_and_expected_errors(context)
     end
-  end
-
-  defp assert_status_and_expected_errors(%{
-         conn: conn,
-         expected_errors: errors,
-         expected_status: status
-       }) do
-    assert Jason.decode!(conn.resp_body) == %{"errors" => errors}
-    assert conn.status == status
-  end
-
-  defp prepare_test(context, get_payload, get_expected_errors) do
-    payload = get_payload.(context)
-    expected_errors = get_expected_errors.(context)
-
-    Map.merge(payload, expected_errors)
   end
 
   defp prepare_malformed_test(context) do
@@ -190,27 +141,5 @@ defmodule JobService.RouterTest do
     }
 
     %{expected_errors: expected_errors}
-  end
-
-  defp do_invalid_test(%{payload: payload, expected_errors: errors}) do
-    # Given
-    conn = get_conn_with_jwt(payload)
-
-    # When
-    conn = Router.call(conn, @opts)
-
-    # Then
-    %{expected_errors: errors, conn: conn}
-  end
-
-  @spec get_conn_with_jwt(map()) :: Conn.t()
-  defp get_conn_with_jwt(payload) do
-    conn(:post, "/skillset", payload)
-    |> set_jwt_token()
-  end
-
-  @spec set_jwt_token(Conn.t()) :: Conn.t()
-  defp set_jwt_token(conn) do
-    put_req_header(conn, "authorization", "Bearer " <> @jwt)
   end
 end
