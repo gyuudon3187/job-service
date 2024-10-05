@@ -1,5 +1,5 @@
 defmodule JobService.Router.Skillset.TestUtils do
-  def get_valid_skillset() do
+  def get_valid_payload do
     %{
       "jobId" => 1,
       "skillset" => [

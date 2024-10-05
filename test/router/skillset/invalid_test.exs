@@ -3,7 +3,7 @@ defmodule JobService.Router.Skillset.InvalidTest do
   import JobService.Router.{TestUtils, Skillset.TestUtils}
   doctest JobService.Router
 
-  @valid_skillset get_valid_skillset()
+  @valid_payload get_valid_payload()
 
   describe "POST /skillset with malformed payload" do
     @describetag expected_error: "PAYLOAD_MALFORMED"
@@ -88,31 +88,43 @@ defmodule JobService.Router.Skillset.InvalidTest do
   end
 
   defp prepare_malformed_test(context) do
-    prepare_test(context, &get_malformed_payload/1, &get_malformed_payload_expected_errors/1)
+    prepare_test(
+      context,
+      &delete_field_in_valid_payload/1,
+      &get_malformed_payload_expected_errors/1
+    )
   end
 
   defp prepare_invalid_job_id_test(context) do
-    prepare_test(context, &set_job_id_in_payload/1, &get_invalid_job_id_expected_errors/1)
+    prepare_test(
+      context,
+      &replace_valid_job_id_with_invalid_value/1,
+      &get_invalid_job_id_expected_errors/1
+    )
   end
 
   defp prepare_invalid_skillset_test(context) do
-    prepare_test(context, &get_invalid_skillset_payload/1, &get_skillset_expected_errors/1)
+    prepare_test(
+      context,
+      &replace_valid_skillset_field_with_invalid_value/1,
+      &get_invalid_skillset_expected_errors/1
+    )
   end
 
-  defp get_malformed_payload(%{lacking_field: field}) do
-    %{payload: Map.delete(@valid_skillset, field)}
+  defp delete_field_in_valid_payload(%{lacking_field: field}) do
+    %{payload: Map.delete(@valid_payload, field)}
   end
 
-  defp set_job_id_in_payload(%{invalid_value: job_id}) do
-    %{payload: %{@valid_skillset | "jobId" => job_id}}
+  defp replace_valid_job_id_with_invalid_value(%{invalid_value: job_id}) do
+    %{payload: %{@valid_payload | "jobId" => job_id}}
   end
 
-  defp get_invalid_skillset_payload(%{
+  defp replace_valid_skillset_field_with_invalid_value(%{
          invalid_key: key,
          invalid_value: value,
          skillset_index: index
        }) do
-    %{payload: put_in(@valid_skillset, ["skillset", Access.at(index), key], value)}
+    %{payload: put_in(@valid_payload, ["skillset", Access.at(index), key], value)}
   end
 
   defp get_malformed_payload_expected_errors(%{expected_error: error}) do
@@ -128,7 +140,7 @@ defmodule JobService.Router.Skillset.InvalidTest do
     %{expected_errors: expected_errors}
   end
 
-  defp get_skillset_expected_errors(%{
+  defp get_invalid_skillset_expected_errors(%{
          invalid_key: key,
          skillset_index: index,
          expected_error: error
