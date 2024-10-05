@@ -3,6 +3,10 @@ ExUnit.start()
 Code.require_file("router/skillset/utils.exs", __DIR__)
 
 defmodule JobService.Router.TestUtils do
+  @moduledoc """
+  Defines helper functions that can be imported by any test module.
+  """
+
   use Plug.Test
   use ExUnit.Case
   alias JobService.Router
@@ -10,6 +14,17 @@ defmodule JobService.Router.TestUtils do
   @opts Router.init([])
   @jwt JobService.JWT.generate_and_sign!()
 
+  @doc """
+  Asserts, in order, that:
+
+  1) The response body equals the expected errors.
+  2) The response status code equals the expected status code.
+  """
+  @spec assert_expected_errors_and_status(%{
+          conn: Plug.Conn.t(),
+          expected_errors: map() | String.t(),
+          expected_status: integer()
+        }) :: :ok
   def assert_expected_errors_and_status(%{
         conn: conn,
         expected_errors: errors,
@@ -19,6 +34,17 @@ defmodule JobService.Router.TestUtils do
     assert conn.status == status
   end
 
+  @doc """
+  Asserts, in order, that:
+
+  1) The response body equals the expected message.
+  2) The response status code equals the expected status code.
+  """
+  @spec assert_expected_errors_and_status(%{
+          conn: Plug.Conn.t(),
+          expected_errors: map() | String.t(),
+          expected_status: integer()
+        }) :: :ok
   def assert_message_and_status(%{
         conn: conn,
         expected_message: message,
@@ -28,6 +54,16 @@ defmodule JobService.Router.TestUtils do
     assert conn.status == status
   end
 
+  @doc """
+  Takes an ExUnit context and two functions.
+  The context is passed to the functions for retrieving: 
+
+  - the payload to be sent to the given endpoint
+  - the errors expected from calling the endpoint with that payload.
+
+  Returns the payload and errors as a map by merging the two.
+  """
+  @spec prepare_test(map(), fun(), fun()) :: map()
   def prepare_test(context, get_payload, get_expected_errors) do
     payload = get_payload.(context)
     expected_errors = get_expected_errors.(context)
@@ -35,6 +71,13 @@ defmodule JobService.Router.TestUtils do
     Map.merge(payload, expected_errors)
   end
 
+  @doc """
+  Executes a valid (or invalid if expected_errors are provided)
+  test after having prepared the payload.
+  """
+  @spec do_test(%{payload: map()}) ::
+          %{expected_message: :SUCCESS, conn: Plug.Conn.t()}
+          | %{expected_errors: map(), conn: Plug.Conn.t()}
   def do_test(%{payload: payload}) do
     # Given
     conn = get_conn_with_jwt(payload)

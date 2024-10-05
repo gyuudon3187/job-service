@@ -1,4 +1,8 @@
 defmodule JobService.Router.Skillset.InvalidTest do
+  @moduledoc """
+  Tests with invalid payloads for the /skillset endpoint.
+  """
+
   use ExUnit.Case
   import JobService.Router.{TestUtils, Skillset.TestUtils}
   doctest JobService.Router

@@ -1,4 +1,13 @@
 defmodule JobService.Router.Skillset.TestUtils do
+  @moduledoc """
+  Defines helper functions that are only inteded to be used by
+  tests for the /skillset endpoint.
+  """
+
+  @doc """
+  Returns a payload with all required (but not all optional)
+  fields initialized.
+  """
   def get_valid_payload do
     %{
       "jobId" => 1,
