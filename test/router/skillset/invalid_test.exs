@@ -5,6 +5,7 @@ defmodule JobService.Router.Skillset.InvalidTest do
 
   use ExUnit.Case
   import JobService.Router.{TestUtils, Skillset.TestUtils}
+  import Mox
   doctest JobService.Router
 
   @valid_payload get_valid_payload()
@@ -30,6 +31,7 @@ defmodule JobService.Router.Skillset.InvalidTest do
     @describetag invalid_key: "jobId"
     @describetag expected_status: 422
 
+    setup [:setup_mock, :verify_on_exit!]
     setup [:prepare_invalid_job_id_test, :do_test]
 
     @tag invalid_value: -1
@@ -50,6 +52,7 @@ defmodule JobService.Router.Skillset.InvalidTest do
     @describetag expected_status: 422
     @describetag skillset_index: 0
 
+    setup [:setup_mock, :verify_on_exit!]
     setup [:prepare_invalid_skillset_test, :do_test]
 
     @tag invalid_value: 1
@@ -70,9 +73,10 @@ defmodule JobService.Router.Skillset.InvalidTest do
     @describetag expected_status: 422
     @describetag skillset_index: 0
 
+    setup [:setup_mock, :verify_on_exit!]
     setup [:prepare_invalid_skillset_test, :do_test]
 
-    @tag invalid_value: "10"
+    @tag invalid_value: "A"
     @tag expected_error: "NOT_NUMBER"
     test "(non-number)", context do
       assert_expected_errors_and_status(context)
@@ -137,8 +141,7 @@ defmodule JobService.Router.Skillset.InvalidTest do
 
   defp get_invalid_job_id_expected_errors(%{expected_error: error}) do
     expected_errors = %{
-      "job_id" => error,
-      "skillset" => []
+      "job_id" => [error]
     }
 
     %{expected_errors: expected_errors}
@@ -146,13 +149,11 @@ defmodule JobService.Router.Skillset.InvalidTest do
 
   defp get_invalid_skillset_expected_errors(%{
          invalid_key: key,
-         skillset_index: index,
          expected_error: error
        }) do
     expected_errors = %{
-      "job_id" => nil,
       "skillset" => [
-        %{"id" => index + 1, key => error}
+        %{key => [error]}
       ]
     }
 

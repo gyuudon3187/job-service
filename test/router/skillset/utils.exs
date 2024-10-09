@@ -4,6 +4,9 @@ defmodule JobService.Router.Skillset.TestUtils do
   tests for the /skillset endpoint.
   """
 
+  alias JobService.JobSkillset
+  import Mox
+
   @doc """
   Returns a payload with all required (but not all optional)
   fields initialized.
@@ -26,5 +29,19 @@ defmodule JobService.Router.Skillset.TestUtils do
         }
       ]
     }
+  end
+
+  def setup_mock(_) do
+    expect(JobService.MockRepo, :save_job_skillset, fn payload ->
+      changeset = JobSkillset.changeset(%JobSkillset{}, payload)
+
+      if changeset.valid? do
+        {:ok, put_in(payload, [:id], 1)}
+      else
+        {:error, changeset}
+      end
+    end)
+
+    :ok
   end
 end

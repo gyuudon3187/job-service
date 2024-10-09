@@ -1,5 +1,7 @@
 ExUnit.start()
 
+Mox.defmock(JobService.MockRepo, for: JobService.RepoBehaviour)
+Application.put_env(:job_service, :repo_impl, JobService.MockRepo)
 Code.require_file("router/skillset/utils.exs", __DIR__)
 
 defmodule JobService.Router.TestUtils do

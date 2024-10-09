@@ -5,12 +5,15 @@ defmodule JobService.Router.Skillset.ValidTest do
 
   use ExUnit.Case
   import JobService.Router.{TestUtils, Skillset.TestUtils}
+  import Mox
   doctest JobService.Router
+
+  setup [:setup_mock, :verify_on_exit!]
 
   @valid_payload get_valid_payload()
 
   describe "POST /skillset with valid data" do
-    @describetag expected_status: 200
+    @describetag expected_status: 201
 
     setup [:prepare_successful_test, :do_test]
 
