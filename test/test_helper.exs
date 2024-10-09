@@ -11,10 +11,10 @@ defmodule JobService.Router.TestUtils do
 
   use Plug.Test
   use ExUnit.Case
-  alias JobService.Router
+  import Joken.Config
+  alias JobService.{Router, JWT}
 
   @opts Router.init([])
-  @jwt JobService.JWT.generate_and_sign!()
 
   @doc """
   Asserts, in order, that:
@@ -80,20 +80,9 @@ defmodule JobService.Router.TestUtils do
   @spec do_test(%{payload: map()}) ::
           %{expected_message: :SUCCESS, conn: Plug.Conn.t()}
           | %{expected_errors: map(), conn: Plug.Conn.t()}
-  def do_test(%{payload: payload}) do
+  def do_test(%{expected_errors: errors} = context) do
     # Given
-    conn = get_conn_with_jwt(payload)
-
-    # When
-    conn = Router.call(conn, @opts)
-
-    # Then
-    %{expected_message: "SUCCESS", conn: conn}
-  end
-
-  def do_test(%{payload: payload, expected_errors: errors}) do
-    # Given
-    conn = get_conn_with_jwt(payload)
+    conn = get_conn_with_jwt(context)
 
     # When
     conn = Router.call(conn, @opts)
@@ -102,14 +91,32 @@ defmodule JobService.Router.TestUtils do
     %{expected_errors: errors, conn: conn}
   end
 
-  @spec get_conn_with_jwt(map()) :: Conn.t()
-  defp get_conn_with_jwt(payload) do
-    conn(:post, "/skillset", payload)
-    |> set_jwt_token()
+  def do_test(context) do
+    # Given
+    conn = get_conn_with_jwt(context)
+
+    # When
+    conn = Router.call(conn, @opts)
+
+    # Then
+    %{expected_message: "SUCCESS", conn: conn}
   end
 
-  @spec set_jwt_token(Conn.t()) :: Conn.t()
-  defp set_jwt_token(conn) do
-    put_req_header(conn, "authorization", "Bearer " <> @jwt)
+  @spec get_conn_with_jwt(map()) :: Conn.t()
+  defp get_conn_with_jwt(%{payload: payload} = context) do
+    conn(:post, "/skillset", payload)
+    |> set_jwt_token(context)
+  end
+
+  @spec set_jwt_token(Conn.t(), map()) :: Conn.t()
+  defp set_jwt_token(conn, %{signing_secret: secret, invalid_email: email}) do
+    token_config = add_claim(default_claims(), "email", fn -> email end, &JWT.validate_email/1)
+    token = Joken.generate_and_sign(%{}, secret, token_config)
+
+    put_req_header(conn, "authorization", "Bearer " <> token)
+  end
+
+  defp set_jwt_token(conn, _) do
+    put_req_header(conn, "authorization", "Bearer " <> JWT.generate_and_sign!())
   end
 end

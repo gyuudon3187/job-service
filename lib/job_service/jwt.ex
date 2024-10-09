@@ -8,7 +8,7 @@ defmodule JobService.JWT do
   end
 
   @spec validate_email(String.t()) :: boolean
-  defp validate_email(email) when is_binary(email) do
+  def validate_email(email) when is_binary(email) do
     regex = ~r/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
     Regex.match?(regex, email)
   end
