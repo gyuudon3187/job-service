@@ -8,12 +8,16 @@ defmodule JobService.Router.Skillset.TestUtils do
   import Mox
 
   @doc """
-  Returns a payload with all required (but not all optional)
-  fields initialized.
+  Returns a payload with all require and optional fields initialized.
   """
   def get_valid_payload do
     %{
-      "jobId" => 1,
+      "company" => "Amazon",
+      "description" =>
+        "We require experience in serverless architecture and AWS. It's also good if you're familiar with Scrum or Kanban.",
+      "link" => "https://somewebsite.com",
+      "date_applied" => Date.utc_today() |> Date.add(-1) |> Date.to_string(),
+      "deadline" => Date.utc_today() |> Date.add(1) |> Date.to_string(),
       "skillset" => [
         %{
           "topic" => "Experience in serverless architecture and AWS",

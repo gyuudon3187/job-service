@@ -22,10 +22,10 @@ defmodule JobService.Router.Skillset.MalformedTest do
 
     setup :do_test
 
-    @tag lacking_field: "jobId"
-    test "(lacks jobId field)", context do
-      assert_expected_errors_and_status(context)
-    end
+    # @tag lacking_field: "jobId"
+    # test "(lacks jobId field)", context do
+    #   assert_expected_errors_and_status(context)
+    # end
 
     @tag lacking_field: "skillset"
     test "(lacks skillset field)", context do

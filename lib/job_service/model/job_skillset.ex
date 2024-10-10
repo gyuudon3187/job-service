@@ -7,16 +7,27 @@ defmodule JobService.JobSkillset do
   schema "job_skillsets" do
     field(:job_id, :integer)
     field(:user_email, :string)
+    field(:description, :string)
+    field(:link, :string)
+    field(:date_applied, :date)
+    field(:deadline, :date)
     embeds_many(:skillset, JobService.Skill)
     timestamps()
   end
 
   def changeset(job_skillset, attrs) do
     job_skillset
-    |> cast(attrs, [:job_id, :user_email])
-    |> validate_required([:job_id, :user_email])
+    |> cast(attrs, [:job_id, :user_email, :description, :link, :date_applied, :deadline])
+    |> validate_required([:job_id, :user_email, :description, :link])
     |> validate_number(:job_id, greater_than: 0, message: "NEGATIVE_ID")
     |> cast_embed(:skillset)
-    |> validate_datatypes([{:job_id, "NOT_NUMBER"}])
+    |> validate_datatypes([
+      {:job_id, "NOT_NUMBER"},
+      {:user_email, "NOT_STRING"},
+      {:description, "NOT_STRING"},
+      {:link, "NOT_STRING"},
+      {:date_applied, "NOT_DATE"},
+      {:deadline, "NOT_DATE"}
+    ])
   end
 end

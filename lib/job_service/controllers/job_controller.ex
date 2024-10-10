@@ -5,11 +5,15 @@ defmodule JobService.JobController do
 
   def handle_skillset_request(conn) do
     case conn.body_params do
-      %{"jobId" => job_id, "skillset" => skillset} ->
+      %{"description" => description, "link" => link, "skillset" => skillset} = params ->
         case RepoProxy.save_job_skillset(%{
-               job_id: job_id,
+               job_id: 1,
                user_email: conn.assigns[:email],
-               skillset: skillset
+               description: description,
+               link: link,
+               skillset: skillset,
+               date_applied: Map.get(params, "date_applied"),
+               deadline: Map.get(params, "deadline")
              }) do
           {:ok, _result} ->
             send_resp(conn, 201, Jason.encode!(%{message: "SUCCESS"}))
@@ -22,21 +26,6 @@ defmodule JobService.JobController do
       _ ->
         send_resp(conn, 400, Jason.encode!(%{errors: "PAYLOAD_MALFORMED"}))
     end
-
-    # %{"jobId" => job_id, "skillset" => skillset} = conn.body_params
-
-    # case RepoProxy.save_job_skillset(%{
-    #        job_id: job_id,
-    #        user_email: conn.assigns[:email],
-    #        skillset: skillset
-    #      }) do
-    #   {:ok, _result} ->
-    #     send_resp(conn, 201, Jason.encode!(%{message: "SUCCESS"}))
-    #
-    #   {:error, changeset} ->
-    #     errors = format_changeset_errors(changeset)
-    #     send_resp(conn, 422, Jason.encode!(%{errors: errors}))
-    # end
   end
 
   defp format_changeset_errors(changeset) do
