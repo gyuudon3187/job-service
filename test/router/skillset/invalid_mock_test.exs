@@ -84,6 +84,34 @@ defmodule JobService.Router.Skillset.InvalidTest do
     end
   end
 
+  describe "POST /skillset with invalid type" do
+    @describetag invalid_key: "type"
+    @describetag expected_status: 422
+    @describetag skillset_index: 0
+
+    setup [:prepare_invalid_skillset_test, :do_test]
+
+    @tag invalid_value: "technicalq"
+    @tag expected_error: "NOT_TYPE"
+    test "(non-existent type)", context do
+      assert_expected_errors_and_status(context)
+    end
+  end
+
+  describe "POST /skillset with invalid content" do
+    @describetag invalid_key: "content"
+    @describetag expected_status: 422
+    @describetag skillset_index: 0
+
+    setup [:prepare_invalid_skillset_test, :do_test]
+
+    @tag invalid_value: 1
+    @tag expected_error: "NOT_STRING"
+    test "(non-string)", context do
+      assert_expected_errors_and_status(context)
+    end
+  end
+
   defp prepare_invalid_skillset_test(context) do
     prepare_test(
       context,
