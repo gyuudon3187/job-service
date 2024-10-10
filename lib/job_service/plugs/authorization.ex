@@ -29,7 +29,7 @@ defmodule JobService.Plugs.Authorization do
 
       {:error, reason} ->
         conn
-        |> send_resp(401, Jason.encode!(%{"error" => %{"unauthorized" => reason}}))
+        |> send_resp(401, Jason.encode!(%{"errors" => reason}))
         |> halt()
     end
   end

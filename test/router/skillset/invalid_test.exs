@@ -77,6 +77,23 @@ defmodule JobService.Router.Skillset.InvalidTest do
     end
   end
 
+  # describe "POST /skillset with invalid email" do
+  #   @describetag signing_secret: "very-secret-dummy-cryptograhic-key"
+  #   @describetag expected_status: 401
+  #   @describetag expected_error: "INVALID_TOKEN"
+  #
+  #   setup %{expected_error: error} do
+  #     %{payload: @valid_payload, expected_errors: error}
+  #   end
+  #
+  #   setup :do_test
+  #
+  #   @tag invalid_email: "userexample.com"
+  #   test "(no @)", context do
+  #     assert_expected_errors_and_status(context)
+  #   end
+  # end
+
   defp prepare_invalid_job_id_test(context) do
     prepare_test(
       context,

@@ -26,6 +26,42 @@ defmodule JobService.Router.Skillset.MalformedTest do
     end
   end
 
+  describe "POST /skillset with invalid email" do
+    @describetag expected_status: 401
+    @describetag expected_error: "INVALID_TOKEN"
+
+    setup %{expected_error: error} do
+      %{payload: @valid_payload, expected_errors: error}
+    end
+
+    setup :do_test
+
+    @tag invalid_email: "@example.com"
+    test "(no username)", context do
+      assert_expected_errors_and_status(context)
+    end
+
+    @tag invalid_email: "userexample.com"
+    test "(no @)", context do
+      assert_expected_errors_and_status(context)
+    end
+
+    @tag invalid_email: "user@example"
+    test "(no TLD)", context do
+      assert_expected_errors_and_status(context)
+    end
+
+    @tag invalid_email: "user@.com"
+    test "(no domain)", context do
+      assert_expected_errors_and_status(context)
+    end
+
+    @tag invalid_email: "user@"
+    test "(no FQDN)", context do
+      assert_expected_errors_and_status(context)
+    end
+  end
+
   defp prepare_malformed_test(context) do
     prepare_test(
       context,

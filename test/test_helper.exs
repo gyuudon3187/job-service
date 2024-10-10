@@ -11,7 +11,6 @@ defmodule JobService.Router.TestUtils do
 
   use Plug.Test
   use ExUnit.Case
-  import Joken.Config
   alias JobService.{Router, JWT}
 
   @opts Router.init([])
@@ -109,10 +108,8 @@ defmodule JobService.Router.TestUtils do
   end
 
   @spec set_jwt_token(Conn.t(), map()) :: Conn.t()
-  defp set_jwt_token(conn, %{signing_secret: secret, invalid_email: email}) do
-    token_config = add_claim(default_claims(), "email", fn -> email end, &JWT.validate_email/1)
-    token = Joken.generate_and_sign(%{}, secret, token_config)
-
+  defp set_jwt_token(conn, %{invalid_email: email}) do
+    token = JWT.get_dummy_token(email)
     put_req_header(conn, "authorization", "Bearer " <> token)
   end
 
