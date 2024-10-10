@@ -1,115 +1,71 @@
-defmodule JobService.Router.Skillset.InvalidTest do
+defmodule JobService.Router.Skillset.MalformedTest do
   @moduledoc """
-  Tests with invalid payloads for the /skillset endpoint.
+  Tests with malformed payloads for the /skillset endpoint.
   """
 
   use ExUnit.Case
   import JobService.Router.{TestUtils, Skillset.TestUtils}
-  import Mox
   doctest JobService.Router
 
   @valid_payload get_valid_payload()
 
-  setup [:setup_mock, :verify_on_exit!]
+  describe "POST /skillset with malformed payload" do
+    @describetag expected_error: "PAYLOAD_MALFORMED"
+    @describetag expected_status: 400
 
-  describe "POST /skillset with invalid jobId" do
-    @describetag invalid_key: "jobId"
-    @describetag expected_status: 422
-
-    setup %{invalid_value: job_id, expected_error: error} do
+    setup %{lacking_field: field, expected_error: error} do
       %{
-        payload: %{@valid_payload | "jobId" => job_id},
-        expected_errors: %{"job_id" => [error]}
+        payload: Map.delete(@valid_payload, field),
+        expected_errors: error
       }
     end
 
     setup :do_test
 
-    @tag invalid_value: -1
-    @tag expected_error: "NEGATIVE_ID"
-    test "(negative)", context do
+    @tag lacking_field: "jobId"
+    test "(lacks jobId field)", context do
       assert_expected_errors_and_status(context)
     end
 
-    @tag invalid_value: "A"
-    @tag expected_error: "NOT_NUMBER"
-    test "(non-numerical)", context do
-      assert_expected_errors_and_status(context)
-    end
-  end
-
-  describe "POST /skillset with invalid topic" do
-    @describetag invalid_key: "topic"
-    @describetag expected_status: 422
-    @describetag skillset_index: 0
-
-    setup [:prepare_invalid_skillset_test, :do_test]
-
-    @tag invalid_value: 1
-    @tag expected_error: "NOT_STRING"
-    test "(non-string)", context do
-      assert_expected_errors_and_status(context)
-    end
-
-    @tag invalid_value: "A"
-    @tag expected_error: "TOO_SHORT"
-    test "(too short)", context do
+    @tag lacking_field: "skillset"
+    test "(lacks skillset field)", context do
       assert_expected_errors_and_status(context)
     end
   end
 
-  describe "POST /skillset with invalid importance" do
-    @describetag invalid_key: "importance"
-    @describetag expected_status: 422
-    @describetag skillset_index: 0
+  describe "POST /skillset with invalid email" do
+    @describetag expected_status: 401
+    @describetag expected_error: "INVALID_TOKEN"
 
-    setup [:prepare_invalid_skillset_test, :do_test]
+    setup %{expected_error: error} do
+      %{payload: @valid_payload, expected_errors: error}
+    end
 
-    @tag invalid_value: "A"
-    @tag expected_error: "NOT_NUMBER"
-    test "(non-number)", context do
+    setup :do_test
+
+    @tag invalid_email: "@example.com"
+    test "(no username)", context do
       assert_expected_errors_and_status(context)
     end
 
-    @tag invalid_value: 11
-    @tag expected_error: "EXCEEDS_BOUNDS"
-    test "(exceeding upper bound)", context do
+    @tag invalid_email: "userexample.com"
+    test "(no @)", context do
       assert_expected_errors_and_status(context)
     end
 
-    @tag invalid_value: -1
-    @tag expected_error: "EXCEEDS_BOUNDS"
-    test "(negative)", context do
+    @tag invalid_email: "user@example"
+    test "(no TLD)", context do
       assert_expected_errors_and_status(context)
     end
-  end
 
-  defp prepare_invalid_skillset_test(context) do
-    prepare_test(
-      context,
-      &replace_valid_skillset_field_with_invalid_value/1,
-      &get_invalid_skillset_expected_errors/1
-    )
-  end
+    @tag invalid_email: "user@.com"
+    test "(no domain)", context do
+      assert_expected_errors_and_status(context)
+    end
 
-  defp replace_valid_skillset_field_with_invalid_value(%{
-         invalid_key: key,
-         invalid_value: value,
-         skillset_index: index
-       }) do
-    %{payload: put_in(@valid_payload, ["skillset", Access.at(index), key], value)}
-  end
-
-  defp get_invalid_skillset_expected_errors(%{
-         invalid_key: key,
-         expected_error: error
-       }) do
-    expected_errors = %{
-      "skillset" => [
-        %{key => [error]}
-      ]
-    }
-
-    %{expected_errors: expected_errors}
+    @tag invalid_email: "user@"
+    test "(no FQDN)", context do
+      assert_expected_errors_and_status(context)
+    end
   end
 end
