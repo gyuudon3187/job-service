@@ -13,7 +13,14 @@ defmodule JobService.Router.Skillset.MalformedTest do
     @describetag expected_error: "PAYLOAD_MALFORMED"
     @describetag expected_status: 400
 
-    setup [:prepare_malformed_test, :do_test]
+    setup %{lacking_field: field, expected_error: error} do
+      %{
+        payload: Map.delete(@valid_payload, field),
+        expected_errors: error
+      }
+    end
+
+    setup :do_test
 
     @tag lacking_field: "jobId"
     test "(lacks jobId field)", context do
@@ -60,21 +67,5 @@ defmodule JobService.Router.Skillset.MalformedTest do
     test "(no FQDN)", context do
       assert_expected_errors_and_status(context)
     end
-  end
-
-  defp prepare_malformed_test(context) do
-    prepare_test(
-      context,
-      &delete_field_in_valid_payload/1,
-      &get_malformed_payload_expected_errors/1
-    )
-  end
-
-  defp delete_field_in_valid_payload(%{lacking_field: field}) do
-    %{payload: Map.delete(@valid_payload, field)}
-  end
-
-  defp get_malformed_payload_expected_errors(%{expected_error: error}) do
-    %{expected_errors: error}
   end
 end

@@ -16,7 +16,14 @@ defmodule JobService.Router.Skillset.InvalidTest do
     @describetag invalid_key: "jobId"
     @describetag expected_status: 422
 
-    setup [:prepare_invalid_job_id_test, :do_test]
+    setup %{invalid_value: job_id, expected_error: error} do
+      %{
+        payload: %{@valid_payload | "jobId" => job_id},
+        expected_errors: %{"job_id" => [error]}
+      }
+    end
+
+    setup :do_test
 
     @tag invalid_value: -1
     @tag expected_error: "NEGATIVE_ID"
@@ -77,31 +84,6 @@ defmodule JobService.Router.Skillset.InvalidTest do
     end
   end
 
-  # describe "POST /skillset with invalid email" do
-  #   @describetag signing_secret: "very-secret-dummy-cryptograhic-key"
-  #   @describetag expected_status: 401
-  #   @describetag expected_error: "INVALID_TOKEN"
-  #
-  #   setup %{expected_error: error} do
-  #     %{payload: @valid_payload, expected_errors: error}
-  #   end
-  #
-  #   setup :do_test
-  #
-  #   @tag invalid_email: "userexample.com"
-  #   test "(no @)", context do
-  #     assert_expected_errors_and_status(context)
-  #   end
-  # end
-
-  defp prepare_invalid_job_id_test(context) do
-    prepare_test(
-      context,
-      &replace_valid_job_id_with_invalid_value/1,
-      &get_invalid_job_id_expected_errors/1
-    )
-  end
-
   defp prepare_invalid_skillset_test(context) do
     prepare_test(
       context,
@@ -110,24 +92,12 @@ defmodule JobService.Router.Skillset.InvalidTest do
     )
   end
 
-  defp replace_valid_job_id_with_invalid_value(%{invalid_value: job_id}) do
-    %{payload: %{@valid_payload | "jobId" => job_id}}
-  end
-
   defp replace_valid_skillset_field_with_invalid_value(%{
          invalid_key: key,
          invalid_value: value,
          skillset_index: index
        }) do
     %{payload: put_in(@valid_payload, ["skillset", Access.at(index), key], value)}
-  end
-
-  defp get_invalid_job_id_expected_errors(%{expected_error: error}) do
-    expected_errors = %{
-      "job_id" => [error]
-    }
-
-    %{expected_errors: expected_errors}
   end
 
   defp get_invalid_skillset_expected_errors(%{
