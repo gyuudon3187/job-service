@@ -47,4 +47,35 @@ defmodule JobService.Router.Skillset.InvalidTests.OuterFieldsTest do
       assert_expected_errors_and_status(context)
     end
   end
+
+  describe "POST /skillset with invalid link" do
+    @describetag invalid_key: "link"
+    @describetag expected_error: "NOT_URL"
+
+    @tag invalid_value: 1
+    @tag expected_error: "NOT_STRING"
+    test "(non-string)", context do
+      assert_expected_errors_and_status(context)
+    end
+
+    @tag invalid_value: "htttp://example.com"
+    test "(invalid protocol)", context do
+      assert_expected_errors_and_status(context)
+    end
+
+    @tag invalid_value: "http//example.com"
+    test "(no colon in scheme)", context do
+      assert_expected_errors_and_status(context)
+    end
+
+    @tag invalid_value: "http:/example.com"
+    test "(simple instead of double slash in scheme)", context do
+      assert_expected_errors_and_status(context)
+    end
+
+    @tag invalid_value: "http://examplecom"
+    test "(no TLD)", context do
+      assert_expected_errors_and_status(context)
+    end
+  end
 end

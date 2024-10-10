@@ -20,6 +20,9 @@ defmodule JobService.JobSkillset do
     |> cast(attrs, [:job_id, :user_email, :description, :link, :date_applied, :deadline])
     |> validate_required([:job_id, :user_email, :description, :link])
     |> validate_number(:job_id, greater_than: 0, message: "NEGATIVE_ID")
+    |> validate_format(:link, ~r/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/,
+      message: "NOT_URL"
+    )
     |> cast_embed(:skillset)
     |> validate_datatypes([
       {:job_id, "NOT_NUMBER"},
