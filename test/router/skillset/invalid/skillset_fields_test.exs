@@ -1,6 +1,7 @@
-defmodule JobService.Router.Skillset.InvalidTest do
+defmodule JobService.Router.Skillset.InvalidTests.SkillsetFieldsTest do
   @moduledoc """
-  Tests with invalid payloads for the /skillset endpoint.
+  Testing with invalid payloads for the /skillset endpoint.
+  Tests the fields inside the payload's skillset field.
   """
 
   use ExUnit.Case
@@ -12,43 +13,17 @@ defmodule JobService.Router.Skillset.InvalidTest do
 
   @valid_payload get_valid_payload()
 
-  setup [:setup_mock, :verify_on_exit!]
-
-  # describe "POST /skillset with invalid jobId" do
-  #   @describetag invalid_key: "jobId"
-  #   @describetag expected_status: 422
-  #
-  #   setup %{invalid_value: job_id, expected_error: error} do
-  #     %{
-  #       payload: %{@valid_payload | "jobId" => job_id},
-  #       expected_errors: %{"job_id" => [error]}
-  #     }
-  #   end
-  #
-  #   setup :do_test
-  #
-  #   @tag invalid_value: -1
-  #   @tag expected_error: "NEGATIVE_ID"
-  #   test "(negative)", context do
-  #     assert_expected_errors_and_status(context)
-  #   end
-  #
-  #   @tag invalid_value: "A"
-  #   @tag expected_error: "NOT_NUMBER"
-  #   test "(non-numerical)", context do
-  #     assert_expected_errors_and_status(context)
-  #   end
-  # end
-
-  # describe "POST /skillset with invalid description" do
-  #   @describetag invalid_key: "description"
-  # end
+  setup [
+    :setup_mock,
+    :verify_on_exit!,
+    :replace_valid_skillset_field_with_invalid_value,
+    :get_invalid_skillset_expected_errors,
+    :do_test
+  ]
 
   describe "POST /skillset with invalid topic" do
     @describetag invalid_key: "topic"
     @describetag skillset_index: 0
-
-    setup [:prepare_invalid_skillset_test, :do_test]
 
     @tag invalid_value: 1
     @tag expected_error: "NOT_STRING"
@@ -66,8 +41,6 @@ defmodule JobService.Router.Skillset.InvalidTest do
   describe "POST /skillset with invalid importance" do
     @describetag invalid_key: "importance"
     @describetag skillset_index: 0
-
-    setup [:prepare_invalid_skillset_test, :do_test]
 
     @tag invalid_value: "A"
     @tag expected_error: "NOT_NUMBER"
@@ -92,8 +65,6 @@ defmodule JobService.Router.Skillset.InvalidTest do
     @describetag invalid_key: "type"
     @describetag skillset_index: 0
 
-    setup [:prepare_invalid_skillset_test, :do_test]
-
     @tag invalid_value: "technicalq"
     @tag expected_error: "NOT_TYPE"
     test "(non-existent type)", context do
@@ -105,21 +76,11 @@ defmodule JobService.Router.Skillset.InvalidTest do
     @describetag invalid_key: "content"
     @describetag skillset_index: 0
 
-    setup [:prepare_invalid_skillset_test, :do_test]
-
     @tag invalid_value: 1
     @tag expected_error: "NOT_STRING"
     test "(non-string)", context do
       assert_expected_errors_and_status(context)
     end
-  end
-
-  defp prepare_invalid_skillset_test(context) do
-    prepare_test(
-      context,
-      &replace_valid_skillset_field_with_invalid_value/1,
-      &get_invalid_skillset_expected_errors/1
-    )
   end
 
   defp replace_valid_skillset_field_with_invalid_value(%{
@@ -134,12 +95,6 @@ defmodule JobService.Router.Skillset.InvalidTest do
          invalid_key: key,
          expected_error: error
        }) do
-    expected_errors = %{
-      "skillset" => [
-        %{key => [error]}
-      ]
-    }
-
-    %{expected_errors: expected_errors}
+    %{expected_errors: %{"skillset" => [%{key => [error]}]}}
   end
 end

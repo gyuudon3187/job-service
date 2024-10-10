@@ -1,6 +1,7 @@
-defmodule JobService.Router.Skillset.MalformedTest do
+defmodule JobService.Router.Skillset.InvalidTests.OuterFieldsWithoutMockTest do
   @moduledoc """
-  Tests with malformed payloads for the /skillset endpoint.
+  Testing with invalid payloads for the /skillset endpoint.
+  Tests outer fields without mocking the database.
   """
 
   use ExUnit.Case
