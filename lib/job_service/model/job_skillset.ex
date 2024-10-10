@@ -8,7 +8,7 @@ defmodule JobService.JobSkillset do
     field(:job_id, :integer)
     field(:user_email, :string)
     field(:description, :string)
-    field(:link, :string)
+    field(:url, :string)
     field(:date_applied, :date)
     field(:deadline, :date)
     embeds_many(:skillset, JobService.Skill)
@@ -17,10 +17,12 @@ defmodule JobService.JobSkillset do
 
   def changeset(job_skillset, attrs) do
     job_skillset
-    |> cast(attrs, [:job_id, :user_email, :description, :link, :date_applied, :deadline])
-    |> validate_required([:job_id, :user_email, :description, :link])
+    |> cast(attrs, [:job_id, :user_email, :description, :url, :date_applied, :deadline])
+    |> validate_required([:job_id, :user_email, :description, :url])
     |> validate_number(:job_id, greater_than: 0, message: "NEGATIVE_ID")
-    |> validate_format(:link, ~r/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/,
+    |> validate_format(
+      :url,
+      ~r/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.\-~]*)*(\?.*)?$/,
       message: "NOT_URL"
     )
     |> cast_embed(:skillset)
@@ -28,7 +30,7 @@ defmodule JobService.JobSkillset do
       {:job_id, "NOT_NUMBER"},
       {:user_email, "NOT_STRING"},
       {:description, "NOT_STRING"},
-      {:link, "NOT_STRING"},
+      {:url, "NOT_STRING"},
       {:date_applied, "NOT_DATE"},
       {:deadline, "NOT_DATE"}
     ])

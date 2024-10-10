@@ -5,15 +5,15 @@ defmodule JobService.JobController do
 
   def handle_skillset_request(conn) do
     case conn.body_params do
-      %{"description" => description, "link" => link, "skillset" => skillset} = params ->
+      %{"description" => description, "url" => url, "skillset" => skillset} = params ->
         case RepoProxy.save_job_skillset(%{
                job_id: 1,
                user_email: conn.assigns[:email],
                description: description,
-               link: link,
+               url: url,
                skillset: skillset,
-               date_applied: Map.get(params, "date_applied"),
-               deadline: Map.get(params, "deadline")
+               date_applied: params["date_applied"],
+               deadline: params["deadline"]
              }) do
           {:ok, _result} ->
             send_resp(conn, 201, Jason.encode!(%{message: "SUCCESS"}))
