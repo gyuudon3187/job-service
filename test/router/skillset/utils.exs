@@ -15,7 +15,7 @@ defmodule JobService.Router.Skillset.TestUtils do
       "company" => "Amazon",
       "description" =>
         "We require experience in serverless architecture and AWS. It's also good if you're familiar with Scrum or Kanban.",
-      "link" => "https://somewebsite.com",
+      "url" => "https://somewebsite.com",
       "date_applied" => Date.utc_today() |> Date.add(-1) |> Date.to_string(),
       "deadline" => Date.utc_today() |> Date.add(1) |> Date.to_string(),
       "skillset" => [

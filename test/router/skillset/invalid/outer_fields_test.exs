@@ -48,8 +48,8 @@ defmodule JobService.Router.Skillset.InvalidTests.OuterFieldsTest do
     end
   end
 
-  describe "POST /skillset with invalid link" do
-    @describetag invalid_key: "link"
+  describe "POST /skillset with invalid url" do
+    @describetag invalid_key: "url"
     @describetag expected_error: "NOT_URL"
 
     @tag invalid_value: 1
