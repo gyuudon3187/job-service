@@ -3,14 +3,14 @@ defmodule JobService.Job do
   import Ecto.Changeset
   import JobService.ValidationUtils
 
-  @primary_key false
   schema "jobs" do
     field(:description, :string)
+    has_many(:job_skillset, JobService.JobSkillset)
     timestamps()
   end
 
-  def changeset(job, attrs) do
-    job
+  def changeset(attrs) do
+    %__MODULE__{}
     |> cast(attrs, [:description])
     |> validate_required([:description])
     |> validate_datatypes([{:description, "NOT_STRING"}])

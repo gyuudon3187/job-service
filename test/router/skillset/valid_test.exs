@@ -8,7 +8,7 @@ defmodule JobService.Router.Skillset.ValidTest do
   import Mox
   doctest JobService.Router
 
-  setup [:setup_mock, :verify_on_exit!]
+  setup [:setup_save_job_and_job_skillset_mock, :verify_on_exit!]
 
   @moduletag expected_status: 201
 

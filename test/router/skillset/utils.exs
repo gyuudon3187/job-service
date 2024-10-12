@@ -4,7 +4,7 @@ defmodule JobService.Router.Skillset.TestUtils do
   tests for the /skillset endpoint.
   """
 
-  alias JobService.JobSkillset
+  alias JobService.{Job, JobSkillset}
   import Mox
 
   @doc """
@@ -35,17 +35,41 @@ defmodule JobService.Router.Skillset.TestUtils do
     }
   end
 
-  def setup_mock(_) do
-    expect(JobService.MockRepo, :save_job_skillset, fn payload ->
-      changeset = JobSkillset.changeset(%JobSkillset{}, payload)
+  def setup_save_job_and_job_skillset_mock(_) do
+    expect(JobService.MockRepo, :save_job_and_job_skillset, fn job, job_skillset ->
+      job = job |> Jason.encode!() |> Jason.decode!()
+      job_skillset = job_skillset |> Jason.encode!() |> Jason.decode!()
+      job_id = Enum.random(1..100)
+      updated_job_skillset = Map.put(job_skillset, "job_id", job_id)
 
-      if changeset.valid? do
-        {:ok, put_in(payload, [:id], 1)}
-      else
-        {:error, changeset}
+      with {:ok, _} <- validate_job(job),
+           {:ok, _} <- validate_job_skillset(updated_job_skillset) do
+        updated_job = Map.put(job, "id", job_id)
+
+        {:ok, %{job: updated_job, job_skillset: updated_job_skillset}}
       end
     end)
 
     :ok
+  end
+
+  defp validate_job(job) do
+    job_changeset = Job.changeset(job)
+
+    if job_changeset.valid? do
+      {:ok, nil}
+    else
+      {:error, nil, job_changeset, nil}
+    end
+  end
+
+  defp validate_job_skillset(job_skillset) do
+    job_skillset_changeset = JobSkillset.changeset(job_skillset)
+
+    if job_skillset_changeset.valid? do
+      {:ok, nil}
+    else
+      {:error, nil, job_skillset_changeset, nil}
+    end
   end
 end

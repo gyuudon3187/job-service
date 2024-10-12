@@ -14,7 +14,7 @@ defmodule JobService.Router.Skillset.InvalidTests.SkillsetFieldsTest do
   @valid_payload get_valid_payload()
 
   setup [
-    :setup_mock,
+    :setup_save_job_and_job_skillset_mock,
     :verify_on_exit!,
     :replace_valid_skillset_field_with_invalid_value,
     :get_invalid_skillset_expected_errors,

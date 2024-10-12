@@ -5,9 +5,8 @@ defmodule JobService.JobSkillset do
 
   @primary_key false
   schema "job_skillsets" do
-    field(:job_id, :integer)
+    belongs_to(:job, JobService.Job, foreign_key: :job_id)
     field(:user_email, :string)
-    field(:description, :string)
     field(:url, :string)
     field(:date_applied, :date)
     field(:deadline, :date)
@@ -15,11 +14,10 @@ defmodule JobService.JobSkillset do
     timestamps()
   end
 
-  def changeset(job_skillset, attrs) do
-    job_skillset
-    |> cast(attrs, [:job_id, :user_email, :description, :url, :date_applied, :deadline])
-    |> validate_required([:job_id, :user_email, :description, :url])
-    |> validate_number(:job_id, greater_than: 0, message: "NEGATIVE_ID")
+  def changeset(attrs) do
+    %__MODULE__{}
+    |> cast(attrs, [:job_id, :user_email, :url, :date_applied, :deadline])
+    |> validate_required([:job_id, :user_email, :url])
     |> validate_format(
       :url,
       ~r/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.\-~]*)*(\?.*)?$/,
@@ -29,7 +27,6 @@ defmodule JobService.JobSkillset do
     |> validate_datatypes([
       {:job_id, "NOT_NUMBER"},
       {:user_email, "NOT_STRING"},
-      {:description, "NOT_STRING"},
       {:url, "NOT_STRING"},
       {:date_applied, "NOT_DATE"},
       {:deadline, "NOT_DATE"}

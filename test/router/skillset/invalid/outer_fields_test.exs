@@ -19,7 +19,7 @@ defmodule JobService.Router.Skillset.InvalidTests.OuterFieldsTest do
     }
   end
 
-  setup [:setup_mock, :verify_on_exit!, :do_test]
+  setup [:setup_save_job_and_job_skillset_mock, :verify_on_exit!, :do_test]
 
   # describe "POST /skillset with invalid jobId" do
   #   @describetag invalid_key: "jobId"
