@@ -1,20 +1,22 @@
 defmodule JobService.JobController do
-  alias JobService.{ErrorUtils, RepoProxy}
+  alias JobService.{Utils, ErrorUtils, RepoProxy}
   import Plug.Conn
 
   def handle_skillset_request(conn) do
-    case conn.body_params do
-      %{"description" => description, "url" => url, "skillset" => skillset} = params ->
+    params = conn.body_params |> Utils.to_snake_case_keys()
+
+    case params do
+      %{"description" => description, "url" => url, "skillset" => skillset} ->
         job = %{description: description}
 
         job_skillset = %{
-          user_email: conn.assigns[:email],
-          company: params["company"],
-          description: description,
-          url: url,
-          skillset: skillset,
-          date_applied: params["date_applied"],
-          deadline: params["deadline"]
+          "user_email" => conn.assigns[:email],
+          "company" => params["company"],
+          "description" => description,
+          "url" => url,
+          "skillset" => skillset,
+          "date_applied" => params["date_applied"],
+          "deadline" => params["deadline"]
         }
 
         case RepoProxy.save_job_and_job_skillset(job, job_skillset) do

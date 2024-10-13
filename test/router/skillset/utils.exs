@@ -4,7 +4,7 @@ defmodule JobService.Router.Skillset.TestUtils do
   tests for the /skillset endpoint.
   """
 
-  alias JobService.{Job, JobSkillset, Utils}
+  alias JobService.{Job, JobSkillset}
   import Mox
 
   @doc """
@@ -67,8 +67,6 @@ defmodule JobService.Router.Skillset.TestUtils do
 
   def setup_save_job_and_job_skillset_mock(_) do
     expect(JobService.MockRepo, :save_job_and_job_skillset, fn job, job_skillset ->
-      job = Utils.to_string_keyed_map(job)
-      job_skillset = Utils.to_string_keyed_map(job_skillset)
       job_id = Enum.random(1..100)
       updated_job_skillset = Map.put(job_skillset, "job_id", job_id)
 
