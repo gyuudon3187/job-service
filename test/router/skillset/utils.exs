@@ -4,16 +4,20 @@ defmodule JobService.Router.Skillset.TestUtils do
   tests for the /skillset endpoint.
   """
 
-  alias JobService.JobSkillset
+  alias JobService.{Job, JobSkillset}
   import Mox
 
   @doc """
-  Returns a payload with all required (but not all optional)
-  fields initialized.
+  Returns a payload with all require and optional fields initialized.
   """
   def get_valid_payload do
     %{
-      "jobId" => 1,
+      "company" => "Amazon",
+      "description" =>
+        "We require experience in serverless architecture and AWS. It's also good if you're familiar with Scrum or Kanban.",
+      "url" => "https://somewebsite.com",
+      "date_applied" => Date.utc_today() |> Date.add(-1) |> Date.to_string(),
+      "deadline" => Date.utc_today() |> Date.add(1) |> Date.to_string(),
       "skillset" => [
         %{
           "topic" => "Experience in serverless architecture and AWS",
@@ -31,17 +35,69 @@ defmodule JobService.Router.Skillset.TestUtils do
     }
   end
 
-  def setup_mock(_) do
-    expect(JobService.MockRepo, :save_job_skillset, fn payload ->
-      changeset = JobSkillset.changeset(%JobSkillset{}, payload)
+  def get_company, do: "company"
+  def get_description, do: "description"
+  def get_url, do: "url"
+  def get_date_applied, do: "date_applied"
+  def get_deadline, do: "deadline"
 
-      if changeset.valid? do
-        {:ok, put_in(payload, [:id], 1)}
-      else
-        {:error, changeset}
+  def get_current_date_string do
+    Date.utc_today() |> Date.to_string()
+  end
+
+  def delete_field_from_payload(%{payload: payload, lacking_field: field}) do
+    %{payload: Map.delete(payload, field)}
+  end
+
+  def set_expected_error(%{expected_error: error}) do
+    %{expected_errors: error}
+  end
+
+  def set_expected_error_for_key(%{key: key, expected_error: error}) do
+    %{expected_errors: %{Macro.underscore(key) => [error]}}
+  end
+
+  def set_value_for_key_in_payload(%{
+        payload: payload,
+        key: key,
+        new_value: value
+      }) do
+    %{payload: %{payload | key => value}}
+  end
+
+  def setup_save_job_and_job_skillset_mock(_) do
+    expect(JobService.MockRepo, :save_job_and_job_skillset, fn job, job_skillset ->
+      job_id = Enum.random(1..100)
+      updated_job_skillset = Map.put(job_skillset, "job_id", job_id)
+
+      with {:ok, _} <- validate_job(job),
+           {:ok, _} <- validate_job_skillset(updated_job_skillset) do
+        updated_job = Map.put(job, "id", job_id)
+
+        {:ok, %{job: updated_job, job_skillset: updated_job_skillset}}
       end
     end)
 
     :ok
+  end
+
+  defp validate_job(job) do
+    job_changeset = Job.changeset(job)
+
+    if job_changeset.valid? do
+      {:ok, nil}
+    else
+      {:error, nil, job_changeset, nil}
+    end
+  end
+
+  defp validate_job_skillset(job_skillset) do
+    job_skillset_changeset = JobSkillset.changeset(job_skillset)
+
+    if job_skillset_changeset.valid? do
+      {:ok, nil}
+    else
+      {:error, nil, job_skillset_changeset, nil}
+    end
   end
 end

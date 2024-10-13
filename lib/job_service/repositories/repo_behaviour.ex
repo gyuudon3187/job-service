@@ -1,5 +1,5 @@
 defmodule JobService.RepoBehaviour do
-  alias Ecto.{Changeset, Schema}
-
-  @callback save_job_skillset(map()) :: {:ok, Schema.t()} | {:error, Changeset.t()}
+  @callback save_job_and_job_skillset(map(), map()) ::
+              {:ok, %{optional(any) => any}}
+              | {:error, any, any, %{optional(any) => any}}
 end
