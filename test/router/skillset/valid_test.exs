@@ -10,52 +10,78 @@ defmodule JobService.Router.Skillset.ValidTest do
 
   setup [:setup_save_job_and_job_skillset_mock, :verify_on_exit!]
 
-  @moduletag expected_status: 201
-
   @valid_payload get_valid_payload()
 
-  describe "POST /skillset with valid data" do
-    setup [:prepare_successful_test, :do_test]
+  @moduletag expected_status: 201
+  @moduletag payload: @valid_payload
 
-    test "(2 skills, all fields initialized except content)", context do
+  # fields
+  @url get_url()
+  @date_applied get_date_applied()
+  @deadline get_deadline()
+
+  describe "POST /skillset with valid data" do
+    setup :do_test
+
+    test "(2 skills, all fields initialized)", context do
       assert_message_and_status(context)
     end
   end
 
-  describe "POST /skillset with valid URL" do
-    setup [:set_url, :do_test]
+  describe "POST /skillset without optional field" do
+    setup [:delete_field_from_payload, :do_test]
 
-    @tag url: "http://example.com"
+    @tag lacking_field: @date_applied
+    test "'#{@date_applied}'", context do
+      assert_message_and_status(context)
+    end
+
+    @tag lacking_field: @deadline
+    test "'#{@deadline}'", context do
+      assert_message_and_status(context)
+    end
+  end
+
+  describe "POST /skillset with valid #{@url}" do
+    @describetag key: @url
+
+    setup [:set_value_for_key_in_payload, :do_test]
+
+    @tag new_value: "http://example.com"
     test "(protocol: http)", context do
       assert_message_and_status(context)
     end
 
-    @tag url: "https://example.com"
+    @tag new_value: "https://example.com"
     test "(protocol: https)", context do
       assert_message_and_status(context)
     end
 
-    @tag url: "example.com"
+    @tag new_value: "example.com"
     test "(without scheme)", context do
       assert_message_and_status(context)
     end
 
-    @tag url: "http://example.com/"
+    @tag new_value: "http://example.com/"
     test "(trailing slash)", context do
       assert_message_and_status(context)
     end
 
-    @tag url: "http://example.com/path/with_some_special_characters?query=dummy"
+    @tag new_value: "http://example.com/path/with_some_special_characters?query=dummy"
     test "(with path)", context do
       assert_message_and_status(context)
     end
   end
 
-  defp set_url(%{url: url}) do
-    %{payload: %{@valid_payload | "url" => url}}
-  end
+  @current_date get_current_date_string()
+  describe "POST /skillset with valid date_applied" do
+    @describetag key: @date_applied
 
-  defp prepare_successful_test(_context) do
-    %{payload: @valid_payload}
+    setup [:set_value_for_key_in_payload, :do_test]
+
+    @tag new_value: @current_date
+    test "(YYYY-MM-DD)", context do
+      assert_message_and_status(context)
+    end
   end
 end

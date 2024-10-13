@@ -1,6 +1,7 @@
 defmodule JobService.Router.Skillset.InvalidTests.OuterFieldsTest do
   @moduledoc """
   Tests with invalid payloads for the /skillset endpoint.
+  One field per test in this module is invalid.
   """
 
   use ExUnit.Case
@@ -8,73 +9,114 @@ defmodule JobService.Router.Skillset.InvalidTests.OuterFieldsTest do
   import Mox
   doctest JobService.Router
 
-  @moduletag expected_status: 422
-
   @valid_payload get_valid_payload()
 
-  setup %{invalid_key: key, invalid_value: value, expected_error: error} do
-    %{
-      payload: %{@valid_payload | key => value},
-      expected_errors: %{Macro.underscore(key) => [error]}
-    }
-  end
+  @moduletag expected_status: 422
+  @moduletag payload: @valid_payload
 
-  setup [:setup_save_job_and_job_skillset_mock, :verify_on_exit!, :do_test]
+  # fields
+  @company get_company()
+  @description get_description()
+  @url get_url()
+  @date_applied get_date_applied()
+  @deadline get_deadline()
 
-  # describe "POST /skillset with invalid jobId" do
-  #   @describetag invalid_key: "jobId"
-  #   setup :do_test
-  #
-  #   @tag invalid_value: -1
-  #   @tag expected_error: "NEGATIVE_ID"
-  #   test "(negative)", context do
-  #     assert_expected_errors_and_status(context)
-  #   end
-  #
-  #   @tag invalid_value: "A"
-  #   @tag expected_error: "NOT_NUMBER"
-  #   test "(non-numerical)", context do
-  #     assert_expected_errors_and_status(context)
-  #   end
-  # end
+  setup [
+    :set_value_for_key_in_payload,
+    :set_expected_error_for_key,
+    :setup_save_job_and_job_skillset_mock,
+    :verify_on_exit!,
+    :do_test
+  ]
 
-  describe "POST /skillset with invalid description" do
-    @describetag invalid_key: "description"
+  describe "POST /skillset with invalid #{@company}" do
+    @describetag key: @company
 
-    @tag invalid_value: 1
+    @tag new_value: 1
     @tag expected_error: "NOT_STRING"
     test "(non-string)", context do
       assert_expected_errors_and_status(context)
     end
   end
 
-  describe "POST /skillset with invalid url" do
-    @describetag invalid_key: "url"
+  describe "POST /skillset with invalid #{@description}" do
+    @describetag key: @description
+
+    @tag new_value: 1
+    @tag expected_error: "NOT_STRING"
+    test "(non-string)", context do
+      assert_expected_errors_and_status(context)
+    end
+  end
+
+  describe "POST /skillset with invalid #{@url}" do
+    @describetag key: @url
     @describetag expected_error: "NOT_URL"
 
-    @tag invalid_value: 1
+    @tag new_value: 1
     @tag expected_error: "NOT_STRING"
     test "(non-string)", context do
       assert_expected_errors_and_status(context)
     end
 
-    @tag invalid_value: "htttp://example.com"
+    @tag new_value: "htttp://example.com"
     test "(invalid protocol)", context do
       assert_expected_errors_and_status(context)
     end
 
-    @tag invalid_value: "http//example.com"
+    @tag new_value: "http//example.com"
     test "(no colon in scheme)", context do
       assert_expected_errors_and_status(context)
     end
 
-    @tag invalid_value: "http:/example.com"
+    @tag new_value: "http:/example.com"
     test "(simple instead of double slash in scheme)", context do
       assert_expected_errors_and_status(context)
     end
 
-    @tag invalid_value: "http://examplecom"
+    @tag new_value: "http://examplecom"
     test "(no TLD)", context do
+      assert_expected_errors_and_status(context)
+    end
+  end
+
+  @current_date get_current_date_string()
+  describe "POST /skillset with invalid #{@date_applied}" do
+    @describetag key: @date_applied
+    @describetag expected_error: "NOT_DATE"
+
+    @tag new_value: @current_date |> String.replace("-", "")
+    test "(format: YYYYMMDD)", context do
+      assert_expected_errors_and_status(context)
+    end
+
+    @tag new_value: @current_date |> String.replace("-", "_")
+    test "(format: YYYY_MM_DD)", context do
+      assert_expected_errors_and_status(context)
+    end
+
+    @tag new_value: @current_date |> String.slice(2..-1//1)
+    test "(format: YYMMDD)", context do
+      assert_expected_errors_and_status(context)
+    end
+  end
+
+  describe "POST /skillset with invalid #{@deadline}" do
+    @describetag key: @deadline
+    @describetag expected_error: "NOT_DATE"
+
+    @tag new_value: @current_date |> String.replace("-", "")
+    test "(format: YYYYMMDD)", context do
+      assert_expected_errors_and_status(context)
+    end
+
+    @tag new_value: @current_date |> String.replace("-", "_")
+    test "(format: YYYY_MM_DD)", context do
+      assert_expected_errors_and_status(context)
+    end
+
+    @tag new_value: @current_date |> String.slice(2..-1//1)
+    test "(format: YYMMDD)", context do
       assert_expected_errors_and_status(context)
     end
   end

@@ -35,6 +35,36 @@ defmodule JobService.Router.Skillset.TestUtils do
     }
   end
 
+  def get_company, do: "company"
+  def get_description, do: "description"
+  def get_url, do: "url"
+  def get_date_applied, do: "date_applied"
+  def get_deadline, do: "deadline"
+
+  def get_current_date_string do
+    Date.utc_today() |> Date.to_string()
+  end
+
+  def delete_field_from_payload(%{payload: payload, lacking_field: field}) do
+    %{payload: Map.delete(payload, field)}
+  end
+
+  def set_expected_error(%{expected_error: error}) do
+    %{expected_errors: error}
+  end
+
+  def set_expected_error_for_key(%{key: key, expected_error: error}) do
+    %{expected_errors: %{Macro.underscore(key) => [error]}}
+  end
+
+  def set_value_for_key_in_payload(%{
+        payload: payload,
+        key: key,
+        new_value: value
+      }) do
+    %{payload: %{payload | key => value}}
+  end
+
   def setup_save_job_and_job_skillset_mock(_) do
     expect(JobService.MockRepo, :save_job_and_job_skillset, fn job, job_skillset ->
       job = Utils.to_string_keyed_map(job)

@@ -2,6 +2,7 @@ defmodule JobService.Router.Skillset.InvalidTests.OuterFieldsWithoutMockTest do
   @moduledoc """
   Testing with invalid payloads for the /skillset endpoint.
   Tests outer fields without mocking the database.
+  One field per test in this module is invalid.
   """
 
   use ExUnit.Case
@@ -10,23 +11,23 @@ defmodule JobService.Router.Skillset.InvalidTests.OuterFieldsWithoutMockTest do
 
   @valid_payload get_valid_payload()
 
+  @moduletag payload: @valid_payload
+
   describe "POST /skillset with malformed payload" do
     @describetag expected_error: "PAYLOAD_MALFORMED"
     @describetag expected_status: 400
 
-    setup %{lacking_field: field, expected_error: error} do
-      %{
-        payload: Map.delete(@valid_payload, field),
-        expected_errors: error
-      }
+    setup [:delete_field_from_payload, :set_expected_error, :do_test]
+
+    @tag lacking_field: "description"
+    test "(lacks description field)", context do
+      assert_expected_errors_and_status(context)
     end
 
-    setup :do_test
-
-    # @tag lacking_field: "jobId"
-    # test "(lacks jobId field)", context do
-    #   assert_expected_errors_and_status(context)
-    # end
+    @tag lacking_field: "url"
+    test "(lacks url field)", context do
+      assert_expected_errors_and_status(context)
+    end
 
     @tag lacking_field: "skillset"
     test "(lacks skillset field)", context do
@@ -38,11 +39,7 @@ defmodule JobService.Router.Skillset.InvalidTests.OuterFieldsWithoutMockTest do
     @describetag expected_status: 401
     @describetag expected_error: "INVALID_TOKEN"
 
-    setup %{expected_error: error} do
-      %{payload: @valid_payload, expected_errors: error}
-    end
-
-    setup :do_test
+    setup [:set_expected_error, :do_test]
 
     @tag invalid_email: "@example.com"
     test "(no username)", context do
