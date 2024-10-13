@@ -9,6 +9,7 @@ defmodule JobService.JobController do
 
         job_skillset = %{
           user_email: conn.assigns[:email],
+          company: params["company"],
           description: description,
           url: url,
           skillset: skillset,

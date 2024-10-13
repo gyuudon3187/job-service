@@ -7,6 +7,7 @@ defmodule JobService.JobSkillset do
   schema "job_skillsets" do
     belongs_to(:job, JobService.Job, foreign_key: :job_id)
     field(:user_email, :string)
+    field(:company, :string)
     field(:url, :string)
     field(:date_applied, :date)
     field(:deadline, :date)
@@ -16,7 +17,7 @@ defmodule JobService.JobSkillset do
 
   def changeset(attrs) do
     %__MODULE__{}
-    |> cast(attrs, [:job_id, :user_email, :url, :date_applied, :deadline])
+    |> cast(attrs, [:job_id, :user_email, :company, :url, :date_applied, :deadline])
     |> validate_required([:job_id, :user_email, :url])
     |> validate_format(
       :url,
@@ -27,6 +28,7 @@ defmodule JobService.JobSkillset do
     |> cast_embed(:skillset)
     |> validate_datatypes([
       {:user_email, "NOT_STRING"},
+      {:company, "NOT_STRING"},
       {:url, "NOT_STRING"},
       {:date_applied, "NOT_DATE"},
       {:deadline, "NOT_DATE"}
