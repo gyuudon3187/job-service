@@ -6,12 +6,13 @@ defmodule JobService.JobController do
     params = conn.body_params |> Utils.to_snake_case_keys()
 
     case params do
-      %{"description" => description, "url" => url, "skillset" => skillset} ->
+      %{"description" => description, "title" => title, "url" => url, "skillset" => skillset} ->
         job = %{description: description}
 
         job_skillset = %{
           "user_email" => conn.assigns[:email],
           "company" => params["company"],
+          "title" => title,
           "description" => description,
           "url" => url,
           "skillset" => skillset,
