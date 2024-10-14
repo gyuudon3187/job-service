@@ -13,6 +13,7 @@ defmodule JobService.Router.Skillset.TestUtils do
   def get_valid_payload do
     %{
       "company" => "Amazon",
+      "title" => "Software Architect",
       "description" =>
         "We require experience in serverless architecture and AWS. It's also good if you're familiar with Scrum or Kanban.",
       "url" => "https://somewebsite.com",
