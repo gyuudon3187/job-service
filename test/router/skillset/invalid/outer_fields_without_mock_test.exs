@@ -17,7 +17,11 @@ defmodule JobService.Router.Skillset.InvalidTests.OuterFieldsWithoutMockTest do
     @describetag expected_error: "PAYLOAD_MALFORMED"
     @describetag expected_status: 400
 
-    setup [:delete_field_from_payload, :set_expected_error, :do_test]
+    setup [
+      :delete_field_from_payload,
+      :set_expected_error,
+      :do_test
+    ]
 
     @tag lacking_field: "description"
     test "(lacks description field)", context do

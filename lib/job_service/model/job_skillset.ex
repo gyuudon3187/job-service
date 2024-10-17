@@ -5,7 +5,8 @@ defmodule JobService.JobSkillset do
 
   @primary_key false
   schema "job_skillsets" do
-    belongs_to(:job, JobService.Job, foreign_key: :job_id)
+    # belongs_to(:job, JobService.Job, foreign_key: :job_id)
+    field(:job_id, :string)
     field(:user_email, :string)
     field(:company, :string)
     field(:title, :string)
@@ -20,6 +21,7 @@ defmodule JobService.JobSkillset do
     %__MODULE__{}
     |> cast(attrs, [:job_id, :user_email, :company, :title, :url, :date_applied, :deadline])
     |> validate_required([:job_id, :user_email, :title, :url])
+    |> unique_constraint([:job_id, :user_email], name: :job_skillsets_pkey)
     |> validate_format(
       :url,
       ~r/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.\-~]*)*(\?.*)?$/,
@@ -28,6 +30,7 @@ defmodule JobService.JobSkillset do
     |> validate_date_order(:date_applied, :deadline)
     |> cast_embed(:skillset)
     |> validate_datatypes([
+      {:job_id, "NOT_STRING"},
       {:user_email, "NOT_STRING"},
       {:company, "NOT_STRING"},
       {:title, "NOT_STRING"},

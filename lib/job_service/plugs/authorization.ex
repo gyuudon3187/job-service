@@ -16,7 +16,7 @@ defmodule JobService.Plugs.Authorization do
     end
   end
 
-  @spec is_protected?(Conn.t()) :: boolean
+  @spec is_protected?(Conn.t()) :: boolean()
   defp is_protected?(conn) do
     conn.request_path in @protected_routes
   end
@@ -24,8 +24,10 @@ defmodule JobService.Plugs.Authorization do
   @spec authorize(Conn.t()) :: Conn.t()
   defp authorize(conn) do
     case authorize_user(conn) do
-      {:ok, email} ->
-        assign(conn, :email, email)
+      {:ok, email, token} ->
+        conn
+        |> assign(:email, email)
+        |> assign(:token, token)
 
       {:error, reason} ->
         conn
@@ -34,7 +36,7 @@ defmodule JobService.Plugs.Authorization do
     end
   end
 
-  @spec authorize_user(Conn.t()) :: {:ok, String.t()} | {:error, String.t()}
+  @spec authorize_user(Conn.t()) :: {:ok, String.t(), String.t()} | {:error, String.t()}
   defp authorize_user(conn) do
     case get_req_header(conn, "authorization") do
       ["Bearer " <> token] -> verify_token(token)
@@ -42,11 +44,11 @@ defmodule JobService.Plugs.Authorization do
     end
   end
 
-  @spec verify_token(String.t()) :: {:ok, String.t()} | {:error, String.t()}
+  @spec verify_token(String.t()) :: {:ok, String.t(), String.t()} | {:error, String.t()}
   defp verify_token(token) do
     case JobService.JWT.verify_and_validate(token) do
       {:ok, claims} ->
-        {:ok, claims["email"]}
+        {:ok, claims["email"], token}
 
       _ ->
         {:error, "INVALID_TOKEN"}

@@ -8,11 +8,14 @@ defmodule JobService.Router.Skillset.ValidTest do
   import Mox
   doctest JobService.Router
 
-  setup [:setup_save_job_and_job_skillset_mock, :verify_on_exit!]
+  setup [
+    :setup_upsert_job_and_job_skillset_mock,
+    :verify_on_exit!
+  ]
 
   @valid_payload get_valid_payload()
 
-  @moduletag expected_status: 201
+  @moduletag expected_status: 200
   @moduletag payload: @valid_payload
 
   # fields

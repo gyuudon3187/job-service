@@ -66,17 +66,21 @@ defmodule JobService.Router.Skillset.TestUtils do
     %{payload: %{payload | key => value}}
   end
 
-  def setup_save_job_and_job_skillset_mock(_) do
-    expect(JobService.MockRepo, :save_job_and_job_skillset, fn job, job_skillset ->
-      job_id = Enum.random(1..100)
-      updated_job_skillset = Map.put(job_skillset, "job_id", job_id)
+  def setup_upsert_job_and_job_skillset_mock(_) do
+    expect(JobService.MockRepo, :upsert_job_and_job_skillset, fn
+      %{job: job, job_skillset: job_skillset} ->
+        with {:ok, _} <- validate_job(job),
+             {:ok, _} <- validate_job_skillset(job_skillset) do
+          {:ok, %{job: job, job_skillset: job_skillset}}
+        end
+    end)
 
-      with {:ok, _} <- validate_job(job),
-           {:ok, _} <- validate_job_skillset(updated_job_skillset) do
-        updated_job = Map.put(job, "id", job_id)
+    :ok
+  end
 
-        {:ok, %{job: updated_job, job_skillset: updated_job_skillset}}
-      end
+  def setup_delete_job_from_qdrant_mock(_) do
+    expect(JobService.MockRepo, :delete_job_from_qdrant, fn _substituted_id, _token ->
+      :ok
     end)
 
     :ok

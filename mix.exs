@@ -27,6 +27,8 @@ defmodule JobService.MixProject do
       {:jason, "~> 1.4"},
       {:ecto, "~> 3.10"},
       {:ecto_sql, "~> 3.0"},
+      {:elixir_uuid, "~> 1.2"},
+      {:httpoison, "~> 2.0"},
       {:postgrex, ">= 0.0.0"},
       {:joken, "~> 2.6"},
       {:mox, "~> 1.0", only: :test}

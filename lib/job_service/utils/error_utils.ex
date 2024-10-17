@@ -3,7 +3,12 @@ defmodule JobService.ErrorUtils do
   import Ecto.Changeset, only: [traverse_errors: 2]
 
   def send_errors(conn, changeset) do
-    errors = format_changeset_errors(changeset)
+    errors =
+      case changeset do
+        reason when is_binary(reason) -> reason
+        _ -> format_changeset_errors(changeset)
+      end
+
     send_resp(conn, 422, Jason.encode!(%{errors: errors}))
   end
 

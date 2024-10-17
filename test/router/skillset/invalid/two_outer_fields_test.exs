@@ -22,7 +22,8 @@ defmodule JobService.Router.Skillset.InvalidTests.TwoOuterFieldsTest do
     :set_value_for_key_in_payload,
     :set_value_for_second_key_in_payload,
     :set_expected_error_for_key,
-    :setup_save_job_and_job_skillset_mock,
+    :setup_upsert_job_and_job_skillset_mock,
+    :setup_delete_job_from_qdrant_mock,
     :verify_on_exit!,
     :do_test
   ]
